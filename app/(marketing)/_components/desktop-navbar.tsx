@@ -1,5 +1,6 @@
 "use client";
 
+import SignoutButton from "@/components/signout-button";
 import { Button } from "@/components/ui/button";
 import { useSession } from "@/lib/auth-client";
 import { navbarItems } from "@/lib/utils";
@@ -22,7 +23,9 @@ const DesktopNavbar = () => {
           </Button>
         );
       })}
-      {!data?.session.token && (
+      {data?.session.token ? (
+        <SignoutButton />
+      ) : (
         <Button asChild>
           <Link href="/sign-in">Sign in</Link>
         </Button>

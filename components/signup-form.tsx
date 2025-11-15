@@ -13,18 +13,23 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useActionState, useEffect } from "react";
+import { toast } from "sonner";
 import InputError from "./input-error";
+import { Spinner } from "./ui/spinner";
 
 export function SignupForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
   const initialState: SignUpState = {};
-  const [state, formAction] = useActionState(signUpWithEmail, initialState);
+  const [state, formAction, pending] = useActionState(
+    signUpWithEmail,
+    initialState
+  );
 
   useEffect(() => {
     if (state.message) {
-      alert(state.message);
+      toast.error(state.message);
     }
   }, [state]);
 
@@ -82,8 +87,13 @@ export function SignupForm({
               </Field>
 
               <Field>
-                <Button className="cursor-pointer" type="submit">
+                <Button
+                  disabled={pending}
+                  className="cursor-pointer"
+                  type="submit"
+                >
                   Create Account
+                  {pending && <Spinner />}
                 </Button>
               </Field>
 

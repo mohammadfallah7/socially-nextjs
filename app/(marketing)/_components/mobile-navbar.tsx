@@ -1,5 +1,6 @@
 "use client";
 
+import SignoutButton from "@/components/signout-button";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -40,7 +41,9 @@ const MobileNavbar = () => {
               </Button>
             );
           })}
-          {!data?.session.token && (
+          {data?.session.token ? (
+            <SignoutButton />
+          ) : (
             <Button asChild>
               <Link href="/sign-in">Sign in</Link>
             </Button>
