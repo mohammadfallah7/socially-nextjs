@@ -1,39 +1,37 @@
-import React from "react";
-import { Button } from "./ui/button";
+"use client";
+
 import { LucideLogOut } from "lucide-react";
-import { signOut } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
+import { Button } from "./ui/button";
+import { signout, SignoutState } from "@/actions/auth.action";
+import { useActionState, useEffect } from "react";
+import { Spinner } from "./ui/spinner";
 import { toast } from "sonner";
 
 const SignoutButton = () => {
-  const router = useRouter();
+  const initialState: SignoutState = {};
+  const [state, formAction, pending] = useActionState(signout, initialState);
 
-  const handleSignout = async () => {
-    const { data, error } = await signOut({
-      fetchOptions: {
-        onSuccess: () => {
-          router.refresh();
-        },
-      },
-    });
-
-    if (data?.success) {
-      toast.success("Signout successfully!");
+  useEffect(() => {
+    if (state.message) {
+      if (state.success) {
+        toast.success(state.message);
+      } else {
+        toast.error(state.message);
+      }
     }
-    if (error) {
-      toast.error(error.message);
-    }
-  };
+  }, [state]);
 
   return (
-    <Button
-      onClick={handleSignout}
-      className="cursor-pointer"
-      size="icon"
-      variant="ghost"
-    >
-      <LucideLogOut />
-    </Button>
+    <form action={formAction} className="flex justify-center">
+      <Button
+        disabled={pending}
+        className="cursor-pointer"
+        size="icon"
+        variant="ghost"
+      >
+        {pending ? <Spinner /> : <LucideLogOut />}
+      </Button>
+    </form>
   );
 };
 

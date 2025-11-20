@@ -1,5 +1,3 @@
-"use client";
-
 import SignoutButton from "@/components/signout-button";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,13 +7,14 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { useSession } from "@/lib/auth-client";
+import { auth } from "@/lib/auth";
 import { navbarItems } from "@/lib/utils";
 import { LucideMenu } from "lucide-react";
+import { headers } from "next/headers";
 import Link from "next/link";
 
-const MobileNavbar = () => {
-  const { data } = useSession();
+const MobileNavbar = async () => {
+  const session = await auth.api.getSession({ headers: await headers() });
 
   return (
     <Sheet>
@@ -29,7 +28,7 @@ const MobileNavbar = () => {
           <SheetTitle>Menu</SheetTitle>
         </SheetHeader>
         <nav className="grid gap-5 px-5">
-          {navbarItems(!!data?.session.token).map((item) => {
+          {navbarItems(!!session).map((item) => {
             const Icon = item.icon;
 
             return (
@@ -41,7 +40,7 @@ const MobileNavbar = () => {
               </Button>
             );
           })}
-          {data?.session.token ? (
+          {session ? (
             <SignoutButton />
           ) : (
             <Button asChild>
