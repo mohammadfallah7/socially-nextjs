@@ -9,18 +9,106 @@ datasource db {
 }
 
 model User {
-  id            String    @id
-  name          String
-  email         String
-  emailVerified Boolean   @default(false)
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @default(now()) @updatedAt
-  sessions      Session[]
-  accounts      Account[]
+  id                   String         @id
+  name                 String
+  email                String
+  emailVerified        Boolean        @default(false)
+  image                String?
+  bio                  String?
+  location             String?
+  website              String?
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @default(now()) @updatedAt
+  sessions             Session[]
+  accounts             Account[]
+  posts                Post[]
+  comments             Comment[]
+  likes                Like[]
+  followers            Follow[]       @relation("following")
+  followings           Follow[]       @relation("follower")
+  notifications        Notification[] @relation("userNotifications")
+  notificationsCreated Notification[] @relation("notificationCreator")
 
   @@unique([email])
   @@map("user")
+}
+
+model Post {
+  id            String         @id
+  authorId      String
+  content       String
+  image         String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @default(now()) @updatedAt
+  author        User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments      Comment[]
+  likes         Like[]
+  notifications Notification[]
+
+  @@map("post")
+}
+
+model Comment {
+  id            String         @id
+  authorId      String
+  postId        String
+  content       String
+  createdAt     DateTime       @default(now())
+  author        User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  post          Post           @relation(fields: [postId], references: [id], onDelete: Cascade)
+  notifications Notification[]
+
+  @@index([authorId, postId])
+  @@map("comment")
+}
+
+model Like {
+  id        String   @id
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@index([userId, postId])
+  @@map("like")
+}
+
+model Follow {
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+  follower    User     @relation("follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@id([followerId, followingId])
+  @@index([followerId, followingId])
+  @@map("follow")
+}
+
+enum NotificationType {
+  LIKE
+  COMMENT
+  FOLLOW
+}
+
+model Notification {
+  id        String           @id
+  userId    String
+  creatorId String
+  postId    String?
+  commentId String?
+  type      NotificationType
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  user      User             @relation("userNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  creator   User             @relation("notificationCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  post      Post?            @relation(fields: [postId], references: [id], onDelete: Cascade)
+  comment   Comment?         @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("notification")
 }
 
 model Session {
