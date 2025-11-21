@@ -39,3 +39,13 @@ export function navbarItems(isSignedIn: boolean = false) {
     ];
   }
 }
+
+export function generateUserImage(image?: string | null) {
+  if (!image) return "/avatar-placeholder.png";
+
+  return image;
+}
+
+export function generateUsername(email: string) {
+  return email.split("@")[0];
+}
