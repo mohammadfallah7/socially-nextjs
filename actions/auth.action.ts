@@ -94,3 +94,21 @@ export async function signInWithEmail(
 
   redirect("/");
 }
+
+export type SignOutState = {
+  message?: string;
+  success?: boolean;
+};
+
+export async function signout(): Promise<SignOutState> {
+  try {
+    const res = await auth.api.signOut({ headers: await headers() });
+    if (res.success) {
+      return { message: "Signout successfully!", success: true };
+    } else {
+      return { message: "Signout failed!", success: false };
+    }
+  } catch (error) {
+    return { message: (error as Error).message, success: false };
+  }
+}
