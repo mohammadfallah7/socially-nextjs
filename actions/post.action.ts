@@ -3,7 +3,11 @@
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { createPostSchema } from "@/schemas/post.schema";
-import { CreatePostState, DeletePostState } from "@/types/post.model";
+import {
+  CreatePostState,
+  DeletePostState,
+  ToggleLikeState,
+} from "@/types/post.model";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { z } from "zod";
@@ -89,6 +93,70 @@ export async function deletePost(postId: string): Promise<DeletePostState> {
   revalidatePath("/");
   return {
     message: "Post deleted successfully",
+    success: true,
+  };
+}
+
+export async function toggleLike(postId: string): Promise<ToggleLikeState> {
+  try {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session) {
+      return {
+        message: "Unauthorized",
+        success: false,
+      };
+    }
+
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+      select: { id: true, authorId: true },
+    });
+    if (!post) {
+      return {
+        message: "Post not found",
+        success: false,
+      };
+    }
+
+    if (post.authorId === session.user.id) {
+      return {
+        message: "You can't like you post",
+        success: false,
+      };
+    }
+
+    const like = await prisma.like.findUnique({
+      where: { userId_postId: { userId: session.user.id, postId: post.id } },
+      select: { id: true },
+    });
+
+    if (like) {
+      await prisma.like.delete({ where: { id: like.id } });
+    } else {
+      await prisma.$transaction([
+        prisma.like.create({
+          data: { userId: session.user.id, postId: post.id },
+        }),
+        prisma.notification.create({
+          data: {
+            type: "LIKE",
+            userId: post.authorId,
+            creatorId: session.user.id,
+            postId: post.id,
+          },
+        }),
+      ]);
+    }
+  } catch (error) {
+    return {
+      message: (error as Error).message,
+      success: false,
+    };
+  }
+
+  revalidatePath("/");
+  return {
+    message: "Like toggled successfully",
     success: true,
   };
 }
