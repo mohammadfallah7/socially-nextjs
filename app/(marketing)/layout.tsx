@@ -8,7 +8,7 @@ const MarketingLayout = ({ children }: { children: ReactNode }) => {
     <>
       <Navbar />
       <Container>
-        <div className="grid grid-cols-12 gap-6 mt-6">
+        <div className="grid lg:grid-cols-12 gap-6 mt-6">
           <div className="hidden lg:block lg:col-span-3">
             <Sidebar />
           </div>
