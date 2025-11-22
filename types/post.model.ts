@@ -7,4 +7,9 @@ export type CreatePostState = {
   success?: boolean;
 };
 
+export type DeletePostState = {
+  message?: string;
+  success?: boolean;
+};
+
 export type PostModel = Awaited<ReturnType<typeof getPosts>>[number];

@@ -3,7 +3,7 @@
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { createPostSchema } from "@/schemas/post.schema";
-import { CreatePostState } from "@/types/post.model";
+import { CreatePostState, DeletePostState } from "@/types/post.model";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { z } from "zod";
@@ -48,4 +48,47 @@ export async function createPost(
 
   revalidatePath("/");
   return { message: "Post create successfully", success: true };
+}
+
+export async function deletePost(postId: string): Promise<DeletePostState> {
+  try {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session) {
+      return {
+        message: "Unauthorized",
+        success: false,
+      };
+    }
+
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+      select: { id: true, authorId: true },
+    });
+    if (!post) {
+      return {
+        message: "Post not found",
+        success: false,
+      };
+    }
+
+    if (post.authorId !== session.user.id) {
+      return {
+        message: "Unauthorized",
+        success: false,
+      };
+    }
+
+    await prisma.post.delete({ where: { id: post.id } });
+  } catch (error) {
+    return {
+      message: (error as Error).message,
+      success: false,
+    };
+  }
+
+  revalidatePath("/");
+  return {
+    message: "Post deleted successfully",
+    success: true,
+  };
 }

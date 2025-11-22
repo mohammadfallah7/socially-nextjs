@@ -9,10 +9,11 @@ import {
 import { cn, generateUserImage, generateUsername } from "@/lib/utils";
 import { PostModel } from "@/types/post.model";
 import { formatDistanceToNow } from "date-fns";
-import { LucideHeart, LucideMessageCircle, LucideTrash2 } from "lucide-react";
+import { LucideHeart, LucideMessageCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { FC } from "react";
+import DeletePostButton from "./delete-post-button";
 
 interface IPostCardProps {
   post: PostModel;
@@ -56,11 +57,7 @@ const PostCard: FC<IPostCardProps> = ({ post, user }) => {
               {formatDistanceToNow(post.createdAt, { addSuffix: true })}
             </CardDescription>
           </Link>
-          {isUserPost && (
-            <Button size="icon" variant="ghost">
-              <LucideTrash2 className="size-4" />
-            </Button>
-          )}
+          {isUserPost && <DeletePostButton postId={post.id} />}
         </div>
 
         <p className="text-sm">{post.content}</p>
