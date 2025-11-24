@@ -1,20 +1,23 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardFooter,
-  CardTitle,
 } from "@/components/ui/card";
-import { generateUserImage, generateUsername } from "@/lib/utils";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 import { PostModel } from "@/types/post.model";
-import { formatDistanceToNow } from "date-fns";
 import { LucideHeart, LucideMessageCircle } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
-import { FC } from "react";
+import { FC, useState } from "react";
+import Author from "./author";
+import CreateCommentForm from "./create-comment-form";
 import DeletePostButton from "./delete-post-button";
 import LikePostButton from "./like-post-button";
+import SignInAlert from "./sign-in-alert";
 
 interface IPostCardProps {
   post: PostModel;
@@ -33,55 +36,72 @@ const PostCard: FC<IPostCardProps> = ({ post, user }) => {
   const isLiked = post.likes.some((like) => like.userId === user?.id);
   const isUserPost = post.author.id === user?.id;
 
+  const [isCommenting, setIsCommenting] = useState(false);
+
   return (
     <Card>
       <CardContent className="space-y-3">
-        <div className="flex items-center justify-between">
-          <Link
-            href={`/profile/${generateUsername(post.author.email)}`}
-            className="flex gap-3 items-start lg:items-center"
-          >
-            <Image
-              src={generateUserImage(post.author.image)}
-              alt={post.author.name}
-              width={30}
-              height={30}
-              className="rounded-full"
-            />
-            <div className="flex lg:flex-row flex-col gap-0.5 lg:gap-3">
-              <CardTitle>{post.author.name}</CardTitle>
-              <CardDescription>
-                @{generateUsername(post.author.email)}
-              </CardDescription>
-            </div>
-            <CardDescription>
-              {formatDistanceToNow(post.createdAt, { addSuffix: true })}
-            </CardDescription>
-          </Link>
+        <Author author={post.author} createdAt={post.createdAt}>
           {isUserPost && <DeletePostButton postId={post.id} />}
-        </div>
-
+        </Author>
         <p className="text-sm">{post.content}</p>
       </CardContent>
-      <CardFooter className="flex items-center gap-6">
-        {user ? (
-          <LikePostButton
-            isLiked={isLiked}
-            likeCount={post._count.likes}
-            postId={post.id}
-          />
-        ) : (
-          <Button variant="ghost" asChild>
-            <Link href="/sign-in">
-              <LucideHeart className="size-4 text-muted-foreground" />
-              <CardDescription>{post._count.likes}</CardDescription>
-            </Link>
+      <CardFooter className="flex flex-col gap-3 items-start">
+        <div className="flex items-center gap-6">
+          {user ? (
+            <LikePostButton
+              isLiked={isLiked}
+              likeCount={post._count.likes}
+              postId={post.id}
+            />
+          ) : (
+            <Button variant="ghost" asChild>
+              <Link href="/sign-in">
+                <LucideHeart className="size-4 text-muted-foreground" />
+                <CardDescription>{post._count.likes}</CardDescription>
+              </Link>
+            </Button>
+          )}
+          <Button
+            onClick={() => setIsCommenting(!isCommenting)}
+            variant="ghost"
+            className="cursor-pointer"
+          >
+            <LucideMessageCircle
+              className={cn("size-4 text-muted-foreground", {
+                "text-blue-500 fill-blue-500": isCommenting,
+              })}
+            />
+            <CardDescription className={cn({ "text-blue-500": isCommenting })}>
+              {post._count.comments}
+            </CardDescription>
           </Button>
+        </div>
+        {isCommenting && (
+          <div className="flex flex-col gap-8 w-full">
+            <Separator />
+            {post.comments.length > 0 && (
+              <>
+                <ul className="space-y-6">
+                  {post.comments.map((comment) => (
+                    <li key={comment.id} className="space-y-3">
+                      <Author
+                        author={comment.author}
+                        createdAt={comment.createdAt}
+                      />
+                      <p className="text-sm">{comment.content}</p>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+            {user ? (
+              <CreateCommentForm user={user} postId={post.id} />
+            ) : (
+              <SignInAlert />
+            )}
+          </div>
         )}
-        <Button variant="ghost">
-          <LucideMessageCircle className="size-4 text-muted-foreground" />
-          <CardDescription>{post._count.comments}</CardDescription>
-        </Button>
       </CardFooter>
     </Card>
   );
