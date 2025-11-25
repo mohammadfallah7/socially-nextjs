@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -11,6 +10,7 @@ import { getUserNotifications } from "@/data/notification.data";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import MarkAsReadButton from "./_components/mark-as-read-button";
 import Notification from "./_components/notification";
 
 const Notifications = async () => {
@@ -18,7 +18,7 @@ const Notifications = async () => {
   if (!session) redirect("/sign-in");
 
   const notifications = await getUserNotifications(session.user.id);
-  const unreadNotifications = notifications.filter((n) => !n.read).length;
+  const unreadNotifications = notifications.filter((n) => !n.read);
 
   return (
     <Card>
@@ -26,11 +26,13 @@ const Notifications = async () => {
         <div className="justify-between items-center flex">
           <CardTitle>Notifications</CardTitle>
           <div className="flex items-center gap-2">
-            <CardDescription>{unreadNotifications} unread</CardDescription>
-            {unreadNotifications > 0 && (
-              <Button variant="ghost" size="sm" className="cursor-pointer">
-                Mark as read
-              </Button>
+            <CardDescription>
+              {unreadNotifications.length} unread
+            </CardDescription>
+            {unreadNotifications.length > 0 && (
+              <MarkAsReadButton
+                notificationIds={unreadNotifications.map((n) => n.id)}
+              />
             )}
           </div>
         </div>
