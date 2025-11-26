@@ -4,10 +4,28 @@ import { toggleFollow } from "@/actions/user.action";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { ToggleFollowState } from "@/types/user.model";
-import { useActionState, useEffect } from "react";
+import { FC, useActionState, useEffect } from "react";
 import { toast } from "sonner";
 
-const ToggleFollowButton = ({ userId }: { userId: string }) => {
+interface IToggleFollowButtonProps {
+  userId: string;
+  alreadyFollowing?: boolean;
+  variant?:
+    | "default"
+    | "destructive"
+    | "link"
+    | "outline"
+    | "secondary"
+    | "ghost"
+    | null
+    | undefined;
+}
+
+const ToggleFollowButton: FC<IToggleFollowButtonProps> = ({
+  userId,
+  alreadyFollowing,
+  variant = "outline",
+}) => {
   const toggleFollowById = toggleFollow.bind(null, userId);
   const initialState: ToggleFollowState = {};
   const [state, formAction, pending] = useActionState(
@@ -18,22 +36,26 @@ const ToggleFollowButton = ({ userId }: { userId: string }) => {
   useEffect(() => {
     if (state.message) {
       if (state.success) {
-        toast.success(state.message);
+        if (alreadyFollowing) {
+          toast.success("Follow user successfully");
+        } else {
+          toast.success("Unfollow user successfully");
+        }
       } else {
         toast.error(state.message);
       }
     }
-  }, [state]);
+  }, [state, alreadyFollowing]);
 
   return (
     <form action={formAction}>
       <Button
         disabled={pending}
         size="sm"
-        variant="outline"
-        className="cursor-pointer"
+        variant={variant}
+        className="cursor-pointer w-full"
       >
-        {pending ? <Spinner /> : "Follow"}
+        {pending ? <Spinner /> : alreadyFollowing ? "Unfollow" : "Follow"}
       </Button>
     </form>
   );
