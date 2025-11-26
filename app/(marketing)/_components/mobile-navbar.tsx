@@ -28,7 +28,7 @@ const MobileNavbar = async () => {
           <SheetTitle>Menu</SheetTitle>
         </SheetHeader>
         <nav className="grid gap-5 px-5">
-          {navbarItems(!!session).map((item) => {
+          {navbarItems(!!session, session?.user.email).map((item) => {
             const Icon = item.icon;
 
             return (

@@ -6,10 +6,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { getRecommendedUsers } from "@/data/user.data";
-import { generateUserImage } from "@/lib/utils";
+import { generateUserImage, generateUsername } from "@/lib/utils";
 import Image from "next/image";
 import { FC } from "react";
 import ToggleFollowButton from "./toggle-follow-button";
+import Link from "next/link";
 
 interface IRecommendedUsersProps {
   user: {
@@ -26,6 +27,8 @@ interface IRecommendedUsersProps {
 const RecommendedUsers: FC<IRecommendedUsersProps> = async ({ user }) => {
   const recommendedUsers = await getRecommendedUsers(user.id);
 
+  if (recommendedUsers.length === 0) return null;
+
   return (
     <div className="sticky top-24">
       <Card>
@@ -39,7 +42,10 @@ const RecommendedUsers: FC<IRecommendedUsersProps> = async ({ user }) => {
                 key={recommendedUser.id}
                 className="flex items-center justify-between gap-3"
               >
-                <div className="flex items-center gap-2">
+                <Link
+                  href={`/profile/${generateUsername(recommendedUser.email)}`}
+                  className="flex items-center gap-2"
+                >
                   <Image
                     src={generateUserImage(recommendedUser.image)}
                     alt={recommendedUser.name}
@@ -55,7 +61,7 @@ const RecommendedUsers: FC<IRecommendedUsersProps> = async ({ user }) => {
                       {recommendedUser._count.followers} followers
                     </CardDescription>
                   </div>
-                </div>
+                </Link>
                 <ToggleFollowButton userId={recommendedUser.id} />
               </div>
             );

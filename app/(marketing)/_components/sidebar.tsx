@@ -38,7 +38,10 @@ const AuthenticatedSidebar = async ({ userId }: { userId: string }) => {
   return (
     <Card>
       <CardHeader>
-        <div className="flex flex-col items-center gap-3">
+        <Link
+          href={`/profile/${generateUsername(user.email)}`}
+          className="flex flex-col items-center gap-3"
+        >
           <Image
             src={generateUserImage(user.image)}
             alt={user.name}
@@ -55,7 +58,7 @@ const AuthenticatedSidebar = async ({ userId }: { userId: string }) => {
               {user.bio}
             </CardDescription>
           )}
-        </div>
+        </Link>
       </CardHeader>
       <CardContent className="space-y-5">
         <Separator />

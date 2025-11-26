@@ -14,7 +14,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function navbarItems(isSignedIn: boolean = false) {
+export function navbarItems(isSignedIn: boolean = false, email?: string) {
   if (isSignedIn) {
     return [
       {
@@ -32,7 +32,7 @@ export function navbarItems(isSignedIn: boolean = false) {
       {
         id: 3,
         label: "Profile",
-        href: "/profile",
+        href: email ? `/profile/${generateUsername(email)}` : "/profile",
         icon: LucideUser,
       },
     ];
