@@ -10,7 +10,6 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { getUserById } from "@/data/user.data";
 import { auth } from "@/lib/auth";
-import prisma from "@/lib/prisma";
 import { generateUserImage, generateUsername } from "@/lib/utils";
 import { LucideLink, LucideMapPin } from "lucide-react";
 import { headers } from "next/headers";
