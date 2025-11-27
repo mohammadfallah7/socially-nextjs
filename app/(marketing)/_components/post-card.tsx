@@ -6,14 +6,15 @@ import {
   CardFooter,
   CardTitle,
 } from "@/components/ui/card";
-import { cn, generateUserImage, generateUsername } from "@/lib/utils";
+import { generateUserImage, generateUsername } from "@/lib/utils";
 import { PostModel } from "@/types/post.model";
 import { formatDistanceToNow } from "date-fns";
-import { LucideHeart, LucideMessageCircle, LucideTrash2 } from "lucide-react";
+import { LucideHeart, LucideMessageCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { FC } from "react";
 import DeletePostButton from "./delete-post-button";
+import LikePostButton from "./like-post-button";
 
 interface IPostCardProps {
   post: PostModel;
@@ -62,16 +63,20 @@ const PostCard: FC<IPostCardProps> = ({ post, user }) => {
         <p className="text-sm">{post.content}</p>
       </CardContent>
       <CardFooter className="flex items-center gap-6">
-        <Button variant="ghost">
-          <LucideHeart
-            className={cn("size-4 text-muted-foreground", {
-              "fill-red-500 text-red-500": isLiked,
-            })}
+        {user ? (
+          <LikePostButton
+            isLiked={isLiked}
+            likesCount={post._count.likes}
+            postId={post.id}
           />
-          <CardDescription className={cn({ "text-red-500": isLiked })}>
-            {post._count.likes}
-          </CardDescription>
-        </Button>
+        ) : (
+          <Button variant="ghost" asChild>
+            <Link href="/sign-in">
+              <LucideHeart className="size-4 text-muted-foreground" />
+              <CardDescription>{post._count.likes}</CardDescription>
+            </Link>
+          </Button>
+        )}
         <Button variant="ghost">
           <LucideMessageCircle className="size-4 text-muted-foreground" />
           <CardDescription>{post._count.comments}</CardDescription>

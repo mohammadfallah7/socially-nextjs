@@ -3,7 +3,11 @@
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { createPostSchema } from "@/schemas/post.schema";
-import { CreatePostState, DeletePostState } from "@/types/post.model";
+import {
+  CreatePostState,
+  DeletePostState,
+  TogglePostLikeState,
+} from "@/types/post.model";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { z } from "zod";
@@ -91,6 +95,71 @@ export async function deletePost(postId: string): Promise<DeletePostState> {
   revalidatePath("/");
   return {
     message: "Post deleted successfully",
+    success: true,
+  };
+}
+
+export async function toggleLike(postId: string): Promise<TogglePostLikeState> {
+  try {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session) {
+      return {
+        message: "You must be logged in to like or dislike a post",
+        success: false,
+      };
+    }
+
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+      select: { id: true, authorId: true },
+    });
+    if (!post) {
+      return {
+        message: "Post not found",
+        success: false,
+      };
+    }
+
+    if (session.user.id === post.authorId) {
+      return {
+        message: "You can't like or dislike your post",
+        success: false,
+      };
+    }
+
+    const like = await prisma.like.findUnique({
+      where: { userId_postId: { postId: post.id, userId: session.user.id } },
+    });
+
+    if (like) {
+      await prisma.like.delete({
+        where: { userId_postId: { postId: post.id, userId: session.user.id } },
+      });
+    } else {
+      await prisma.$transaction([
+        prisma.like.create({
+          data: { postId: post.id, userId: session.user.id },
+        }),
+        prisma.notification.create({
+          data: {
+            type: "LIKE",
+            creatorId: session.user.id,
+            userId: post.authorId,
+            postId: post.id,
+          },
+        }),
+      ]);
+    }
+  } catch (error) {
+    return {
+      message: (error as Error).message,
+      success: false,
+    };
+  }
+
+  revalidatePath("/");
+  return {
+    message: "Post like toggled successfully",
     success: true,
   };
 }

@@ -12,4 +12,9 @@ export type DeletePostState = {
   success?: boolean;
 };
 
+export type TogglePostLikeState = {
+  message?: string;
+  success?: boolean;
+};
+
 export type PostModel = Awaited<ReturnType<typeof getPosts>>[number];
