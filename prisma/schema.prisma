@@ -34,7 +34,7 @@ model User {
 }
 
 model Post {
-  id            String         @id
+  id            String         @id @default(cuid())
   authorId      String
   content       String
   createdAt     DateTime       @default(now())
@@ -48,7 +48,7 @@ model Post {
 }
 
 model Comment {
-  id           String         @id
+  id           String         @id @default(cuid())
   authorId     String
   postId       String
   content      String
@@ -62,7 +62,7 @@ model Comment {
 }
 
 model Like {
-  id        String   @id
+  id        String   @id @default(cuid())
   userId    String
   postId    String
   createdAt DateTime @default(now())
@@ -93,7 +93,7 @@ enum NotificationType {
 }
 
 model Notification {
-  id        String           @id
+  id        String           @id @default(cuid())
   userId    String
   creatorId String
   postId    String?
