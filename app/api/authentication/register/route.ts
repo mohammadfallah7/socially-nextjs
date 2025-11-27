@@ -1,5 +1,5 @@
 import { auth } from "@/lib/auth";
-import { signInSchema, signUpSchema } from "@/schemas/auth.schema";
+import { signUpSchema } from "@/schemas/auth.schema";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
