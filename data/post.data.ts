@@ -8,6 +8,7 @@ export async function getPosts() {
         likes: { select: { userId: true } },
         _count: { select: { likes: true, comments: true } },
       },
+      orderBy: { createdAt: "desc" },
     });
   } catch (error) {
     throw new Error((error as Error).message);
