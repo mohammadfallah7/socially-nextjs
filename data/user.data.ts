@@ -10,3 +10,19 @@ export async function getUserById(userId: string) {
     throw new Error((error as Error).message);
   }
 }
+
+export async function getRecommendedUsers(userId: string) {
+  try {
+    return await prisma.user.findMany({
+      where: {
+        id: { not: userId },
+        followers: { none: { followerId: userId } },
+      },
+      include: { _count: { select: { followers: true } } },
+      take: 3,
+      orderBy: { createdAt: "desc" },
+    });
+  } catch (error) {
+    throw new Error((error as Error).message);
+  }
+}

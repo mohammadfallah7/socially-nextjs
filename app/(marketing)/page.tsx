@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import CreatePostForm from "./_components/create-post-form";
 import PostCard from "./_components/post-card";
+import RecommendedUsers from "./_components/recommended-users";
 
 const Home = async () => {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -18,7 +19,9 @@ const Home = async () => {
           ))}
         </div>
       </div>
-      <div className="hidden lg:block lg:col-span-3"></div>
+      <div className="hidden lg:block lg:col-span-3">
+        {session && <RecommendedUsers user={session.user} />}
+      </div>
     </div>
   );
 };
