@@ -1,26 +1,23 @@
 "use client";
 
+import Alert from "@/components/alert";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardFooter,
-  CardTitle,
 } from "@/components/ui/card";
-import { cn, generateUserImage, generateUsername } from "@/lib/utils";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 import { PostModel } from "@/types/post.model";
-import { formatDistanceToNow } from "date-fns";
 import { LucideHeart, LucideMessageCircle } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { FC, useState } from "react";
+import Author from "./author";
+import CreateCommentForm from "./create-comment-form";
 import DeletePostButton from "./delete-post-button";
 import LikePostButton from "./like-post-button";
-import { Separator } from "@/components/ui/separator";
-import CreateCommentForm from "./create-comment-form";
-import Author from "./author";
-import Alert from "@/components/alert";
 
 interface IPostCardProps {
   post: PostModel;
