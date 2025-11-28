@@ -2,8 +2,9 @@
 
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { createPostSchema } from "@/schemas/post.schema";
+import { createCommentSchema, createPostSchema } from "@/schemas/post.schema";
 import {
+  CreateCommentState,
   CreatePostState,
   DeletePostState,
   TogglePostLikeState,
@@ -160,6 +161,88 @@ export async function toggleLike(postId: string): Promise<TogglePostLikeState> {
   revalidatePath("/");
   return {
     message: "Post like toggled successfully",
+    success: true,
+  };
+}
+
+export async function createComment(
+  postId: string,
+  _: CreateCommentState,
+  formData: FormData
+): Promise<CreateCommentState> {
+  const validatedFields = createCommentSchema.safeParse(
+    Object.fromEntries(formData)
+  );
+  if (!validatedFields.success) {
+    return {
+      message: "Invalid fields",
+      error: z.treeifyError(validatedFields.error).properties,
+      payload: { content: formData.get("content") as string },
+      success: false,
+    };
+  }
+
+  try {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session) {
+      return {
+        message: "You must be logged in to create a comment",
+        payload: validatedFields.data,
+        success: false,
+      };
+    }
+
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+      select: { id: true, authorId: true },
+    });
+    if (!post) {
+      return {
+        message: "Post not found",
+        payload: validatedFields.data,
+        success: false,
+      };
+    }
+
+    if (session.user.id === post.authorId) {
+      await prisma.comment.create({
+        data: {
+          authorId: session.user.id,
+          postId: post.id,
+          ...validatedFields.data,
+        },
+      });
+    } else {
+      prisma.$transaction(async (tx) => {
+        const comment = await tx.comment.create({
+          data: {
+            authorId: session.user.id,
+            postId: post.id,
+            ...validatedFields.data,
+          },
+        });
+        await tx.notification.create({
+          data: {
+            type: "COMMENT",
+            commentId: comment.id,
+            creatorId: session.user.id,
+            userId: post.authorId,
+            postId: post.id,
+          },
+        });
+      });
+    }
+  } catch (error) {
+    return {
+      message: (error as Error).message,
+      success: false,
+      payload: validatedFields.data,
+    };
+  }
+
+  revalidatePath("/");
+  return {
+    message: "Comment created successfully",
     success: true,
   };
 }

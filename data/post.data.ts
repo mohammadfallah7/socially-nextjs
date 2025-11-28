@@ -6,6 +6,14 @@ export async function getPosts() {
       include: {
         author: { select: { name: true, email: true, image: true } },
         likes: { select: { userId: true } },
+        comments: {
+          select: {
+            id: true,
+            content: true,
+            createdAt: true,
+            author: { select: { name: true, email: true, image: true } },
+          },
+        },
         _count: { select: { likes: true, comments: true } },
       },
       orderBy: { createdAt: "desc" },

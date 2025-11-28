@@ -20,7 +20,7 @@ const Sidebar = async () => {
   const session = await auth.api.getSession({ headers: await headers() });
 
   return (
-    <aside>
+    <aside className="sticky top-24">
       {session ? (
         <AuthenticatedSidebar userId={session.user.id} />
       ) : (
