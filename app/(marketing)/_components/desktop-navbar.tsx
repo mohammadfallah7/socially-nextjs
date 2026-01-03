@@ -10,7 +10,7 @@ const DesktopNavbar = async () => {
 
   return (
     <nav className="hidden md:flex items-center gap-5">
-      {navbarItems(!!session).map((item) => {
+      {navbarItems(!!session, session?.user.email).map((item) => {
         const Icon = item.icon;
 
         return (
