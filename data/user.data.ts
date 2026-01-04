@@ -26,3 +26,17 @@ export async function getRecommendedUsers(userId: string) {
     throw new Error((error as Error).message);
   }
 }
+
+export async function getUserByEmail(email: string) {
+  try {
+    return prisma.user.findUnique({
+      where: { email },
+      include: {
+        _count: { select: { followers: true, followings: true, posts: true } },
+        followers: { select: { followerId: true } },
+      },
+    });
+  } catch (error) {
+    throw new Error((error as Error).message);
+  }
+}
