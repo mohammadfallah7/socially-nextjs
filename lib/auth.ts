@@ -10,4 +10,11 @@ export const auth = betterAuth({
   emailAndPassword: { enabled: true },
   plugins: [nextCookies()],
   trustedOrigins: ["http://localhost:5173"],
+  advanced: {
+    defaultCookieAttributes: {
+      sameSite: "None",
+      secure: true,
+      partitioned: true,
+    },
+  },
 });
