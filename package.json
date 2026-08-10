@@ -3,10 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate deploy",
+    "dev": "next dev --turbopack",
+    "build": "next build --turbopack",
+    "postinstall": "prisma generate --no-engine",
     "start": "next start",
     "lint": "eslint"
   },
