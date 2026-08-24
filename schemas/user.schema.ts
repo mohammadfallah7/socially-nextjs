@@ -21,4 +21,5 @@ export const editProfileSchema = z.object({
     .trim()
     .max(50, "Website must be at most 50 characters long")
     .optional(),
+  image: z.string().optional(),
 });

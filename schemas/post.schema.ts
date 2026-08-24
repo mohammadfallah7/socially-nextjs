@@ -6,6 +6,7 @@ export const createPostSchema = z.object({
     .trim()
     .min(5, { message: "Content is too short, minimum 5 characters" })
     .max(300, { message: "Content is too long, maximum 300 characters" }),
+  image: z.string().optional(),
 });
 
 export const createCommentSchema = z.object({

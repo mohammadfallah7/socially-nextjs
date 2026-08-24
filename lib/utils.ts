@@ -51,7 +51,7 @@ export function navbarItems(isSignedIn: boolean = false, email?: string) {
 export function generateUserImage(image?: string | null) {
   if (!image) return "/avatar-placeholder.png";
 
-  return image;
+  return `https://79gcelddzk.ucarecd.net/${image}/`;
 }
 
 export function generateUsername(email: string) {

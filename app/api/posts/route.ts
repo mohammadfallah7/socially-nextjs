@@ -23,7 +23,7 @@ export async function GET() {
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
         success: false,
         error: z.treeifyError(validatedFields.error).properties,
       },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
           message: "You must be logged in to create a post",
           success: false,
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -65,18 +65,18 @@ export async function POST(request: NextRequest) {
         success: true,
         data: post,
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     return NextResponse.json(
       {
-        message: "Failed to get posts",
+        message: "Failed to create post",
         success: false,
         error: (error as Error).message,
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }

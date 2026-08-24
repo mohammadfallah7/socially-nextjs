@@ -18,6 +18,7 @@ import Author from "./author";
 import CreateCommentForm from "./create-comment-form";
 import DeletePostButton from "./delete-post-button";
 import LikePostButton from "./like-post-button";
+import Image from "next/image";
 
 interface IPostCardProps {
   post: PostModel;
@@ -45,6 +46,16 @@ const PostCard: FC<IPostCardProps> = ({ post, user }) => {
           {isUserPost && <DeletePostButton postId={post.id} />}
         </Author>
         <p className="text-sm">{post.content}</p>
+        {post.image && (
+          <div className="absolute aspect-square">
+            <Image
+              src={post.image}
+              alt={post.content}
+              fill
+              className="object-cover"
+            />
+          </div>
+        )}
       </CardContent>
       <CardFooter className="flex flex-col gap-4 items-start">
         <div className="flex items-center gap-6">
