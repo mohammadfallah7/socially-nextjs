@@ -14,10 +14,7 @@ export async function POST(req: NextRequest) {
 
   const uploadForm = new FormData();
 
-  uploadForm.append(
-    "UPLOADCARE_PUB_KEY",
-    process.env.NEXT_PUBLIC_UPLOADCARE_API_KEY!,
-  );
+  uploadForm.append("UPLOADCARE_PUB_KEY", "d4c600934851c0f8281a");
   uploadForm.append("UPLOADCARE_STORE", "auto");
   uploadForm.append("file", file);
 
