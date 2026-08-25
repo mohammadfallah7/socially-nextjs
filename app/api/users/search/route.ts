@@ -18,24 +18,26 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    if (!term) {
-      return NextResponse.json({
-        message: "users fetched successfully",
-        success: true,
-        data: [],
-      });
-    }
-
-    const users = await prisma.user.findMany({
-      where: {
-        id: { not: session.user.id },
-        OR: [
-          { name: { contains: term, mode: "insensitive" } },
-          { email: { contains: term, mode: "insensitive" } },
-        ],
-      },
-      orderBy: { createdAt: "desc" },
-    });
+    const users = term
+      ? await prisma.user.findMany({
+          where: {
+            id: { not: session.user.id },
+            OR: [
+              { name: { contains: term, mode: "insensitive" } },
+              { email: { contains: term, mode: "insensitive" } },
+            ],
+          },
+          orderBy: { createdAt: "desc" },
+        })
+      : await prisma.user.findMany({
+          where: {
+            id: { not: session.user.id },
+            followers: { none: { followerId: session.user.id } },
+          },
+          include: { _count: { select: { followers: true } } },
+          take: 5,
+          orderBy: { createdAt: "desc" },
+        });
 
     return NextResponse.json({
       message: "users fetched successfully",

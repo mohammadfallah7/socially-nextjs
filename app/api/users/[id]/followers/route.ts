@@ -2,13 +2,18 @@ import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(request: NextRequest) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params;
+
   try {
     const session = await auth.api.getSession({ headers: request.headers });
     if (!session) {
       return NextResponse.json(
         {
-          message: "You must be logged in to fetch followings",
+          message: "You must be logged in to fetch followers",
           success: false,
         },
         { status: 401 },
@@ -17,11 +22,11 @@ export async function GET(request: NextRequest) {
 
     const followers = await prisma.follow.findMany({
       where: {
-        followerId: session.user.id,
+        followingId: id,
       },
       select: {
         createdAt: true,
-        following: {
+        follower: {
           select: { name: true, email: true, id: true, image: true },
         },
       },
@@ -29,14 +34,14 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json({
-      message: "Followings fetched successfully",
+      message: "Followers fetched successfully",
       success: true,
       data: followers,
     });
   } catch (error) {
     return NextResponse.json(
       {
-        message: "Failed to fetch followings",
+        message: "Failed to fetch followers",
         success: false,
         error: (error as Error).message,
       },

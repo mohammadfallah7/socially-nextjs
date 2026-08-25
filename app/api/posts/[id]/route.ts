@@ -1,10 +1,12 @@
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { updatePostSchema } from "@/schemas/post.schema";
 import { NextRequest, NextResponse } from "next/server";
+import z from "zod";
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
 
@@ -16,7 +18,7 @@ export async function DELETE(
           message: "You must be logged in to delete a post",
           success: false,
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -30,7 +32,7 @@ export async function DELETE(
           message: "Post not found",
           success: false,
         },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -42,7 +44,7 @@ export async function DELETE(
         },
         {
           status: 401,
-        }
+        },
       );
     }
 
@@ -60,14 +62,14 @@ export async function DELETE(
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
 
@@ -79,7 +81,7 @@ export async function PATCH(
           message: "You must be logged in to like or dislike a post",
           success: false,
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -93,7 +95,7 @@ export async function PATCH(
           message: "Post not found",
           success: false,
         },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -105,7 +107,7 @@ export async function PATCH(
         },
         {
           status: 401,
-        }
+        },
       );
     }
 
@@ -149,7 +151,91 @@ export async function PATCH(
       },
       {
         status: 500,
-      }
+      },
+    );
+  }
+}
+
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params;
+  const body = await request.json();
+
+  const validatedFields = updatePostSchema.safeParse(body);
+  if (!validatedFields.success) {
+    return NextResponse.json(
+      {
+        message: "Invalid fields",
+        success: false,
+        error: z.treeifyError(validatedFields.error).properties,
+      },
+      { status: 400 },
+    );
+  }
+
+  try {
+    const session = await auth.api.getSession({ headers: request.headers });
+    if (!session) {
+      return NextResponse.json(
+        {
+          message: "You must be logged in to update your post",
+          success: false,
+        },
+        { status: 401 },
+      );
+    }
+
+    const post = await prisma.post.findUnique({
+      where: { id },
+      select: { id: true, authorId: true },
+    });
+    if (!post) {
+      return NextResponse.json(
+        {
+          message: "Post not found",
+          success: false,
+        },
+        { status: 404 },
+      );
+    }
+
+    if (post.authorId !== session.user.id) {
+      return NextResponse.json(
+        {
+          message: "You can't update other users post",
+          success: false,
+        },
+        {
+          status: 401,
+        },
+      );
+    }
+
+    const newPost = await prisma.post.update({
+      where: { id: post.id },
+      data: { ...validatedFields.data },
+    });
+
+    return NextResponse.json(
+      {
+        message: "Post updated",
+        success: true,
+        data: newPost,
+      },
+      { status: 200 },
+    );
+  } catch (error) {
+    return NextResponse.json(
+      {
+        message: "Failed to update yur post",
+        success: false,
+        error: (error as Error).message,
+      },
+      {
+        status: 500,
+      },
     );
   }
 }

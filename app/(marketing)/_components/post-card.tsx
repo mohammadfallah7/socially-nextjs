@@ -45,9 +45,11 @@ const PostCard: FC<IPostCardProps> = ({ post, user }) => {
         <Author createdAt={post.createdAt} author={post.author}>
           {isUserPost && <DeletePostButton postId={post.id} />}
         </Author>
-        <p className="text-sm">{post.content}</p>
+        <p className="text-sm wrap-break-word whitespace-pre-wrap">
+          {post.content}
+        </p>
         {post.image && (
-          <div className="relative aspect-square overflow-hidden rounded-xl w-sm">
+          <div className="relative aspect-square overflow-hidden rounded-xl h-80">
             <Image
               src={`https://79gcelddzk.ucarecd.net/${post.image}/`}
               alt={post.content}
