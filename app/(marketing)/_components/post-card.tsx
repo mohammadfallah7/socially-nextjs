@@ -47,9 +47,9 @@ const PostCard: FC<IPostCardProps> = ({ post, user }) => {
         </Author>
         <p className="text-sm">{post.content}</p>
         {post.image && (
-          <div className="absolute aspect-square">
+          <div className="relative aspect-square overflow-hidden rounded-xl w-sm">
             <Image
-              src={post.image}
+              src={`https://79gcelddzk.ucarecd.net/${post.image}/`}
               alt={post.content}
               fill
               className="object-cover"
