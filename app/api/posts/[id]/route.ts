@@ -175,6 +175,20 @@ export async function PUT(
     );
   }
 
+  if (
+    validatedFields.data.image &&
+    validatedFields.data.image.includes("ucarecd.net")
+  ) {
+    return NextResponse.json(
+      {
+        message: "Invalid fields",
+        success: false,
+        error: "Image must be UUID",
+      },
+      { status: 400 },
+    );
+  }
+
   try {
     const session = await auth.api.getSession({ headers: request.headers });
     if (!session) {

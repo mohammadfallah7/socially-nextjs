@@ -51,7 +51,7 @@ const PostCard: FC<IPostCardProps> = ({ post, user }) => {
         {post.image && (
           <div className="relative aspect-square overflow-hidden rounded-xl h-80">
             <Image
-              src={`https://1p5nep1spk.ucarecd.net/${post.image}/`}
+              src={`${process.env.NEXT_PUBLIC_UPLOADCARE_CDN_CNAME}/${post.image}/`}
               alt={post.content}
               fill
               className="object-cover"
